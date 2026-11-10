@@ -46,6 +46,7 @@ if(loginDialog){
  form.addEventListener('submit',async e=>{e.preventDefault();const button=form.querySelector('button[type=submit]');button.disabled=true;showMessage('Проверяем данные…');try{const result=await request('login',Object.fromEntries(new FormData(form)));form.reset();showAccount(result.name);showMessage('Вы вошли на сайт.')}catch{showMessage('Не удалось войти. Проверьте ник и пароль или попробуйте позже.')}finally{button.disabled=false}});
  register.addEventListener('submit',async e=>{e.preventDefault();const button=register.querySelector('button[type=submit]');button.disabled=true;showMessage('Создаём аккаунт…');try{await request('register',Object.fromEntries(new FormData(register)));register.reset();mode(false);showMessage('Аккаунт создан. Теперь войдите с помощью ника и пароля сайта.')}catch{showMessage('Не удалось создать аккаунт. Проверьте данные, код или попробуйте позже.')}finally{button.disabled=false}});
  logout.addEventListener('click',async()=>{logout.disabled=true;try{await request('logout',{});showAccount('');mode(false);showMessage('Вы вышли из аккаунта.')}catch{showMessage('Не удалось выйти. Попробуйте ещё раз.')}finally{logout.disabled=false}});
- loginDialog.addEventListener('close',()=>{form.reset();register.reset();showMessage('');if(!accountName)mode(false)});refresh();
+ loginDialog.addEventListener('close',()=>{form.reset();register.reset();showMessage('');if(!accountName)mode(false)});
+ fetch('/api/auth/session',{method:'POST',headers:{'content-type':'application/json'},body:'{}',credentials:'same-origin',cache:'no-store'}).then(async r=>{if(r.status===401||r.ok){document.querySelector('#site-login-open').hidden=false;if(r.ok){const data=await r.json();if(data.ok)showAccount(data.name)}}}).catch(()=>{});
 }
 
