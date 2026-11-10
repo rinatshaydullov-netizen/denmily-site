@@ -28,8 +28,8 @@ if(fernTemplate){
 
 // Tint only nearby text and icons, keeping the page background unchanged.
 if(matchMedia('(pointer:fine)').matches&&!motionPreference.matches){
- const targets=[...document.querySelectorAll('h1, h2, .tile strong, .tile-icon, .tile-top b, .brand-mark, .header-link')];let pending=false,px=0,py=0;
- const updatePearl=()=>{for(const el of targets){const r=el.getBoundingClientRect();const x=Math.max(r.left,Math.min(px,r.right));const y=Math.max(r.top,Math.min(py,r.bottom));const distance=Math.hypot(px-x,py-y);const strength=Math.max(0,1-distance/180);if(strength>0){el.style.setProperty('--pearl-amount',`${Math.round(strength*32)}%`);el.classList.add('pearl-near')}else{el.classList.remove('pearl-near')}}pending=false};
+ const targets=[...document.querySelectorAll('h1, h2, .tile strong, .tile-icon, .tile-top b, .header-link')];let pending=false,px=0,py=0;
+ const updatePearl=()=>{for(const el of targets){const r=el.getBoundingClientRect();const x=Math.max(r.left,Math.min(px,r.right));const y=Math.max(r.top,Math.min(py,r.bottom));const distance=Math.hypot(px-x,py-y);const strength=Math.max(0,1-distance/180);if(strength>0){el.style.setProperty('--pearl-amount',`${Math.round(strength*32)}%`);el.style.setProperty('--pearl-scale',(1+strength*.2).toFixed(3));el.style.setProperty('--local-x',`${(px-r.left).toFixed(1)}px`);el.style.setProperty('--local-y',`${(py-r.top).toFixed(1)}px`);el.classList.add('pearl-near')}else{el.classList.remove('pearl-near')}}pending=false};
  addEventListener('pointermove',e=>{px=e.clientX;py=e.clientY;if(!pending){pending=true;requestAnimationFrame(updatePearl)}},{passive:true});
  document.addEventListener('pointerleave',()=>targets.forEach(el=>el.classList.remove('pearl-near')));
 }
