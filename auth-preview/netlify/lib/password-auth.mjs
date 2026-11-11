@@ -42,9 +42,23 @@ export function createPasswordAuth({store,secrets,origin,clock=()=>Math.floor(Da
         if(!record||record.value.state!=='issued'||record.value.expires<=now||record.value.name.toLowerCase()!==name.toLowerCase())return json(400,{ok:false});
         const salt=randomBytes(16).toString('hex'),passwordHash=await hash(password,salt);
         if(!await store.replace(key,record.version,{state:'consumed',expires:record.value.expires}))return json(400,{ok:false});
-        const ok=await store.create(accountKey(name),{uuid:record.value.uuid,name:record.value.name,email,salt,passwordHash,created:now});
+        const ok=await store.create(accountKey(name),{uuid:record.value.uuid,name:record.value.name,email,salt,passwordHash,authVersion:0,created:now});
         if(!ok)return json(400,{ok:false});
         return json(201,{ok:true});
+      }
+      if(path==='recover'){
+        const {name,password,code}=data;
+        if(!validName(name)||!validPass(password)||typeof code!=='string'||!/^[A-Za-z0-9_-]{24}$/.test(code))return json(400,{ok:false});
+        if(!await limit.consume('recover',name.toLowerCase(),5,900,now))return json(429,{ok:false});
+        const codeKey='code:'+digest('code',code),record=await store.read(codeKey);
+        if(!record||record.value.state!=='issued'||record.value.expires<=now||record.value.name.toLowerCase()!==name.toLowerCase())return json(400,{ok:false});
+        const key=accountKey(name),account=await store.read(key),v=account?.value;
+        if(!v||v.uuid!==record.value.uuid)return json(400,{ok:false});
+        const salt=randomBytes(16).toString('hex'),passwordHash=await hash(password,salt);
+        if(!await store.replace(codeKey,record.version,{state:'consumed',expires:record.value.expires}))return json(400,{ok:false});
+        const updated={...v,salt,passwordHash,authVersion:(Number.isSafeInteger(v.authVersion)?v.authVersion:0)+1,passwordChanged:now};
+        if(!await store.replace(key,account.version,updated))return json(409,{ok:false});
+        return json(200,{ok:true});
       }
       if(path==='login'){
         const {name,password}=data;
@@ -54,12 +68,13 @@ export function createPasswordAuth({store,secrets,origin,clock=()=>Math.floor(Da
         const salt=typeof v?.salt==='string'&&/^[a-f0-9]{32}$/.test(v.salt)?v.salt:'0'.repeat(32);
         const actual=await hash(password,salt);
         if(!v||!equal(actual,v.passwordHash))return json(401,{ok:false});
-        const token=randomBytes(32).toString('hex');if(!await store.create('session:'+digest('session',token),{name:v.name,uuid:v.uuid,expires:now+86400}))return json(503,{ok:false});
+        const token=randomBytes(32).toString('hex');if(!await store.create('session:'+digest('session',token),{name:v.name,uuid:v.uuid,authVersion:Number.isSafeInteger(v.authVersion)?v.authVersion:0,expires:now+86400}))return json(503,{ok:false});
         return json(200,{ok:true,name:v.name},cookie(token,86400));
       }
       if(path==='session'){
         const token=readCookie(req);if(!/^[a-f0-9]{64}$/.test(token))return json(401,{ok:false});
         const s=await store.read('session:'+digest('session',token));if(!s||s.value.revoked||s.value.expires<=now)return json(401,{ok:false});
+        const account=await store.read(accountKey(s.value.name));if(!account||account.value.uuid!==s.value.uuid||(Number.isSafeInteger(s.value.authVersion)?s.value.authVersion:0)!==(Number.isSafeInteger(account.value.authVersion)?account.value.authVersion:0))return json(401,{ok:false});
         return json(200,{ok:true,name:s.value.name});
       }
       if(path==='logout'){
@@ -70,4 +85,3 @@ export function createPasswordAuth({store,secrets,origin,clock=()=>Math.floor(Da
     }catch{return json(503,{ok:false})}
   }
 }
-
