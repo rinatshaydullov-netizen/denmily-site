@@ -48,3 +48,14 @@ body{font-size:17px;line-height:1.6}.shell{max-width:1280px;width:calc(100% - 96
  #application .fields .field-hint{font:400 15px/1.55 Manrope,Arial,sans-serif;color:var(--muted);letter-spacing:0}
  #application .fields input::placeholder{font:400 15px/1.4 Manrope,Arial,sans-serif;color:var(--muted);opacity:.8}
  @media(max-width:760px){#application .fields label{font-size:19px}#application .fields input,#application .fields textarea{font-size:20px}}
+
+/* Header actions use clear, generously sized icons. */
+.header-right{gap:16px}
+.header-icon,.theme,.account-trigger{display:grid;place-items:center;width:50px;height:50px;min-width:50px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--text);transition:transform .18s ease,border-color .18s ease,color .18s ease,background .18s ease}
+.header-icon svg,.theme svg{width:25px;height:25px}
+.header-icon:hover,.theme:hover,.account-trigger:hover{transform:translateY(-2px) scale(1.04);border-color:var(--accent);color:var(--accent);background:var(--surface2)}
+.account-avatar{width:48px;height:48px;border:0;background:transparent}
+.account-avatar svg{width:27px;height:27px}
+.account-trigger-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.header-icon:focus-visible,.theme:focus-visible,.account-trigger:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+@media(max-width:760px){.header-right{gap:10px}.header-icon,.theme,.account-trigger{width:46px;height:46px;min-width:46px}.account-avatar{width:44px;height:44px}}
