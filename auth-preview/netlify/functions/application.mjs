@@ -15,7 +15,7 @@ export default async request=>{
  if(!name||!/^[0-9]{1,3}$/.test(age)||Number(age)<1||Number(age)>120||!nickname||!about||!contact)return json(400,{ok:false});
  const token=process.env.DENMILY_TELEGRAM_BOT_TOKEN;
  if(!token||token.length>200)return json(503,{ok:false});
- const text=`<b>Новая анкета DENMILY</b>\n\n<b>1. Имя:</b> ${escapeHtml(name)}\n<b>2. Возраст:</b> ${age}\n<b>3. Ник в Minecraft:</b> ${escapeHtml(nickname)}\n<b>4. Вкратце о себе:</b>\n${escapeHtml(about)}\n\n<b>5. Как связаться:</b> ${escapeHtml(contact)}`;
+ const text=`<b>1. Имя:</b> ${escapeHtml(name)}\n<b>2. Возраст:</b> ${age}\n<b>3. Ник в Minecraft:</b> ${escapeHtml(nickname)}\n<b>4. Вкратце о себе:</b>\n${escapeHtml(about)}\n\n<b>5. Как связаться:</b> ${escapeHtml(contact)}`;
  try{
   const response=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({chat_id:'-1002775606195',message_thread_id:42,text,parse_mode:'HTML',link_preview_options:{is_disabled:true}}),signal:AbortSignal.timeout(10000)});
   if(!response.ok)return json(502,{ok:false});
