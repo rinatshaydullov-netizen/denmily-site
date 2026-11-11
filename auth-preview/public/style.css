@@ -41,3 +41,10 @@ body{font-size:17px;line-height:1.6}.shell{max-width:1280px;width:calc(100% - 96
 
 .brand-area{display:flex;flex-direction:column;align-items:flex-start;gap:4px}.brand-area .intro-online{margin:0 0 0 52px;font-size:12px;line-height:1.1}.brand-area .online-dot{width:6px;height:6px}@media(max-width:760px){.brand-area .intro-online{margin-left:0;font-size:11px}}
  .form-trap{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}
+ #application .fields label{font:600 20px/1.3 'Cormorant Garamond',Georgia,serif;letter-spacing:.01em}
+ #application .fields input,#application .fields textarea{font:500 21px/1.5 'Cormorant Garamond',Georgia,serif;min-height:54px;padding:14px 16px}
+ #application .fields input[name="age"]{font-family:system-ui,sans-serif;font-size:19px}
+ #application .fields textarea{min-height:145px;resize:vertical}
+ #application .fields .field-hint{font:400 15px/1.55 Manrope,Arial,sans-serif;color:var(--muted);letter-spacing:0}
+ #application .fields input::placeholder{font:400 15px/1.4 Manrope,Arial,sans-serif;color:var(--muted);opacity:.8}
+ @media(max-width:760px){#application .fields label{font-size:19px}#application .fields input,#application .fields textarea{font-size:20px}}
